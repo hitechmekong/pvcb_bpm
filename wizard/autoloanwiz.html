@@ -1,0 +1,597 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+	<title>Sản phẩm vay Mua Ô tô - PVcomBank</title>
+
+	<meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0' name='viewport' />
+    <meta name="viewport" content="width=device-width" />
+
+	<link rel="apple-touch-icon" sizes="76x76" href="assets/img/apple-icon.png" />
+	<link rel="icon" type="image/png" href="assets/img/favicon.png" />
+
+	<!--     Fonts and icons     -->
+	<link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Roboto+Slab:400,700|Material+Icons" />
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css" />
+
+	<!-- CSS Files -->
+	<link href="assets/css/bootstrap.min.css" rel="stylesheet" />
+	<link href="assets/css/material-bootstrap-wizard.css" rel="stylesheet" />
+
+	<!-- CSS Just for demo purpose, don't include it in your project -->
+	<link href="assets/css/demo.css" rel="stylesheet" />
+</head>
+
+<body>
+	<div class="image-container set-full-height" style="background-image: url('assets/img/wizard-book.jpg')">
+	    <!--   Creative Tim Branding   -->
+	    <a href="http://creative-tim.com">
+	         <div class="logo-container">
+	            <div class="logo">
+	                <img src="assets/img/new_logo.png">
+	            </div>
+	            <div class="brand">
+	                Nguyễn Văn Nhân
+	            </div>
+	        </div>
+	    </a>
+
+
+	    <!--   Big container   -->
+	    <div class="container">
+	        <div class="row">
+		        <div class="col-sm-8 col-sm-offset-2">
+		            <!--      Wizard container        -->
+		            <div class="wizard-container">
+		                <div class="card wizard-card" data-color="orange" id="wizard">
+		                    <form action="" method="">
+		                <!--        You can switch " data-color="blue" "  with one of the next bright colors: "green", "orange", "red", "purple"             -->
+
+		                    	<div class="wizard-header">
+		                        	<h3 class="wizard-title">
+		                        		Sản phẩm cho vay mua Ô tô
+		                        	</h3>
+									<h5>Từ thông tin bạn cung cấp, hệ thống sẽ cung cấp giải pháp tài chính tốt nhất.</h5>
+		                    	</div>
+								<div class="wizard-navigation">
+									<ul>
+			                            <li><a href="#basicInfo" data-toggle="tab">Nhu cầu vay vốn</a></li>
+			                            <li><a href="#loansInfo" data-toggle="tab">Thông tin trả nợ</a></li>
+										<li><a href="#plusService" data-toggle="tab">Dịch vụ gia tăng</a></li>
+			                            <li><a href="#checklist" data-toggle="tab">Danh mục hồ sơ</a></li>
+			                        </ul>
+								</div>
+
+		                        <div class="tab-content">
+		                            <div class="tab-pane" id="basicInfo">
+										<div class="row">
+											<div class="col-sm-12">
+												<h4 class="info-text" > Hãy bắt đầu với những thông tin cơ bản và nhu cầu vay vốn.</h4>
+											</div>
+										</div>
+		                            	<div class="row">
+			                            	<div class="col-sm-12">
+			                                	<h4 class="text-left"><b>I. Nhu cầu vay vốn</b> </h4>
+			                            	</div>
+		                                	<div class="col-sm-6">
+												<div class="input-group">
+													<span class="input-group-addon">
+														<i class="material-icons">attach_money</i>
+													</span>
+													<div class="form-group label-floating">
+			                                          	<label class="control-label">Số tiền vay (VNĐ)</label>
+			                                          	<input id="loansValue" name="loansValue" type="text" class="form-control">
+			                                        </div>
+												</div>
+											</div>
+		                                	<div class="col-sm-6">
+												<div class="input-group">
+													<span class="input-group-addon">
+														<i class="material-icons">book_online</i>
+													</span>
+													<div class="form-group label-floating">
+														<label class="control-label">Thời gian vay (Tháng)</label>
+														<input id="loansTime" name="loansTime" type="text" class="form-control">
+													</div>
+												</div>
+		                                	</div>
+		                            	</div>
+
+										<div class="row">
+											<div class="col-sm-12">
+												<h4 class="text-left"><b>II. Tài sản đảm bảo</b> </h4>
+												<h6 class="text-left">1. Tài sản hình thành từ vốn vay</h6>
+											</div>
+											<div class="col-sm-4">
+												<div class="form-group label-floating">
+														<label class="control-label">Hãng xe</label>
+														<select class="form-control">
+															<option disabled="" selected=""></option>
+															<option value="honda">Honda</option>
+															<option value="mitsubishi">Mitsubishi</option>
+															<option value="toyota">Toyota</option>
+															<option value="mercedes">Mercedes</option>
+															<option value="bmw">BMW</option>
+															<option value="audi">Audi</option>
+															<option value="other">Khác</option>
+														</select>
+
+												</div>
+											</div>
+
+											<div class="col-sm-4">
+												<div class="form-group label-floating">
+													<label class="control-label">Hiệu xe</label>
+													<select class="form-control">
+														<option disabled="" selected=""></option>
+														<option value="honda">Civic</option>
+														<option value="mitsubishi">Pajero</option>
+														<option value="toyota">Camry</option>
+														<option value="mercedes">C200</option>
+														<option value="bmw">X8</option>
+														<option value="audi">A7</option>
+														<option value="other">Khác</option>
+													</select>
+
+												</div>
+											</div>
+
+											<div class="col-sm-4">
+												<div class="input-group">
+													<span class="input-group-addon">
+														<i class="material-icons">attach_money</i>
+													</span>
+													<div class="form-group label-floating">
+														<label class="control-label">Giá trị tài sản (VNĐ)</label>
+														<input id="mortageValue" name="mortageValue" type="text" class="form-control">
+													</div>
+												</div>
+											</div>
+
+											<div class="col-sm-12">
+												<h6 class="text-left">2. Tài sản độc lập</h6>
+											</div>
+
+											<div class="col-sm-6">
+												<div class="form-group label-floating">
+													<label class="control-label">Loại tài sản đảm bảo</label>
+													<select class="form-control">
+														<option disabled="" selected=""></option>
+														<option value="honda">Bất động sản</option>
+														<option value="mitsubishi">Xe Ô tô</option>
+														<option value="mitsubishi">Giấy tờ có giá</option>
+														<option value="mitsubishi">Khác</option>
+
+													</select>
+
+												</div>
+											</div>
+
+											<div class="col-sm-6">
+												<div class="input-group">
+													<span class="input-group-addon">
+														<i class="material-icons">attach_money</i>
+													</span>
+													<div class="form-group label-floating">
+														<label class="control-label">Giá trị tài sản (VNĐ)</label>
+														<input id="mortageValue1" name="mortageValue1" type="text" class="form-control">
+													</div>
+												</div>
+											</div>
+
+										</div>
+
+										<div class="row">
+											<div class="col-sm-12">
+												<h4 class="text-left"><b>III. Dư nợ tại các TCTD : </b> </h4>
+											</div>
+											<div class="col-sm-6">
+												<div class="input-group">
+													<span class="input-group-addon">
+														<i class="material-icons">attach_money</i>
+													</span>
+													<div class="form-group label-floating">
+														<label class="control-label">Dư nợ tại PVcomBank</label>
+														<input id="PVCBloansVal" name="PVCBloansVal" type="text" class="form-control">
+													</div>
+												</div>
+
+												<div class="input-group">
+													<span class="input-group-addon">
+														<i class="material-icons">attach_money</i>
+													</span>
+													<div class="form-group label-floating">
+														<label class="control-label">Số tiền trả gốc mỗi tháng (VNĐ)</label>
+														<input id="principal" name="principal" type="text" class="form-control">
+													</div>
+												</div>
+											</div>
+
+
+
+											<div class="col-sm-6">
+												<div class="input-group">
+													<span class="input-group-addon">
+														<i class="material-icons">attach_money</i>
+													</span>
+													<div class="form-group label-floating">
+														<label class="control-label">Dư nợ tại các TCTD khác</label>
+														<input id="otherloansVal" name="otherloansVal" type="text" class="form-control">
+													</div>
+												</div>
+
+												<div class="input-group">
+													<span class="input-group-addon">
+														<i class="material-icons">attach_money</i>
+													</span>
+													<div class="form-group label-floating">
+														<label class="control-label">Số tiền trả lãi mỗi tháng (VNĐ)</label>
+														<input id="interes" name="interes" type="text" class="form-control">
+													</div>
+												</div>
+											</div>
+										</div>
+
+										<div class="row">
+											<div class="col-sm-12">
+												<h4 class="text-left"><b>IV. Nguồn thu nhập : </b> </h4>
+											</div>
+											<div class="col-sm-3">
+												<div class="form-group label-floating">
+													<label id="income1" class="control-label">Nguồn thu nhập 1</label>
+													<select class="form-control">
+														<option disabled="" selected=""></option>
+														<option value="salary">Lương</option>
+														<option value="rent">Cho thuê tài sản</option>
+														<option value="business">Sản xuất kinh doanh</option>
+														<option value="other">Khác</option>
+													</select>
+												</div>
+
+												<div class="form-group label-floating">
+													<label id="income2" class="control-label">Nguồn thu nhập 2</label>
+													<select class="form-control">
+														<option disabled="" selected=""></option>
+														<option value="salary">Lương</option>
+														<option value="rent">Cho thuê tài sản</option>
+														<option value="business">Sản xuất kinh doanh</option>
+														<option value="other">Khác</option>
+													</select>
+												</div>
+
+												<div class="form-group label-floating">
+													<label id="income3" class="control-label">Nguồn thu nhập 3</label>
+													<select class="form-control">
+														<option disabled="" selected=""></option>
+														<option value="salary">Lương</option>
+														<option value="rent">Cho thuê tài sản</option>
+														<option value="business">Sản xuất kinh doanh</option>
+														<option value="other">Khác</option>
+													</select>
+												</div>
+
+												<div class="form-group label-floating">
+													<label id="income4" class="control-label">Nguồn thu nhập 4</label>
+													<select class="form-control">
+														<option disabled="" selected=""></option>
+														<option value="salary">Lương</option>
+														<option value="rent">Cho thuê tài sản</option>
+														<option value="business">Sản xuất kinh doanh</option>
+														<option value="other">Khác</option>
+													</select>
+												</div>
+
+												<div class="form-group label-floating">
+													<label id="income5" class="control-label">Nguồn thu nhập 5</label>
+													<select class="form-control">
+														<option disabled="" selected=""></option>
+														<option value="salary">Lương</option>
+														<option value="rent">Cho thuê tài sản</option>
+														<option value="business">Sản xuất kinh doanh</option>
+														<option value="other">Khác</option>
+													</select>
+												</div>
+
+
+											</div>
+
+											<div class="col-sm-3">
+												<div class="form-group label-floating">
+													<label class="control-label">Nguồn thu của ai ?</label>
+													<select  id="whom1" class="form-control">
+														<option disabled="" selected=""></option>
+														<option value="owner">Người vay</option>
+														<option value="supporter">Người đồng trách nhiệm</option>
+
+													</select>
+
+												</div>
+
+												<div class="form-group label-floating">
+													<label class="control-label">Nguồn thu của ai ?</label>
+													<select id="whom2" class="form-control">
+														<option disabled="" selected=""></option>
+														<option value="owner">Người vay</option>
+														<option value="supporter">Người đồng trách nhiệm</option>
+
+													</select>
+
+												</div>
+
+												<div class="form-group label-floating">
+													<label class="control-label">Nguồn thu của ai ?</label>
+													<select id="whom3" class="form-control">
+														<option disabled="" selected=""></option>
+														<option value="owner">Người vay</option>
+														<option value="supporter">Người đồng trách nhiệm</option>
+
+													</select>
+
+												</div>
+
+												<div class="form-group label-floating">
+													<label class="control-label">Nguồn thu của ai ?</label>
+													<select id="whom4" class="form-control">
+														<option disabled="" selected=""></option>
+														<option value="owner">Người vay</option>
+														<option value="supporter">Người đồng trách nhiệm</option>
+
+													</select>
+
+												</div>
+
+												<div class="form-group label-floating">
+													<label class="control-label">Nguồn thu của ai ?</label>
+													<select id="whom5" class="form-control">
+														<option disabled="" selected=""></option>
+														<option value="owner">Người vay</option>
+														<option value="supporter">Người đồng trách nhiệm</option>
+
+													</select>
+
+												</div>
+
+											</div>
+
+											<div class="col-sm-6">
+												<div class="input-group">
+													<span class="input-group-addon">
+														<i class="material-icons">attach_money</i>
+													</span>
+													<div class="form-group label-floating">
+														<label class="control-label">Giá trị nguồn thu nhập 1 </label>
+														<input id="incomeVal1" name="incomeVal1" type="text" class="form-control">
+													</div>
+												</div>
+
+												<div class="input-group">
+													<span class="input-group-addon">
+														<i class="material-icons">attach_money</i>
+													</span>
+													<div class="form-group label-floating">
+														<label class="control-label">Giá trị nguồn thu nhập 2 </label>
+														<input id="incomeVal2" name="incomeVal2" type="text" class="form-control">
+													</div>
+												</div>
+
+												<div class="input-group">
+													<span class="input-group-addon">
+														<i class="material-icons">attach_money</i>
+													</span>
+													<div class="form-group label-floating">
+														<label class="control-label">Giá trị nguồn thu nhập 3 </label>
+														<input id="incomeVal3" name="incomeVal3" type="text" class="form-control">
+													</div>
+												</div>
+
+												<div class="input-group">
+													<span class="input-group-addon">
+														<i class="material-icons">attach_money</i>
+													</span>
+													<div class="form-group label-floating">
+														<label class="control-label">Giá trị nguồn thu nhập 4 </label>
+														<input id="incomeVal4" name="incomeVal4" type="text" class="form-control">
+													</div>
+												</div>
+
+												<div class="input-group">
+													<span class="input-group-addon">
+														<i class="material-icons">attach_money</i>
+													</span>
+													<div class="form-group label-floating">
+														<label class="control-label">Giá trị nguồn thu nhập 5 </label>
+														<input id="incomeVal5" name="incomeVal5" type="text" class="form-control">
+													</div>
+												</div>
+
+
+											</div>
+										</div>
+
+		                            </div>
+
+
+
+		                            <div class="tab-pane" id="loansInfo">
+		                                <h4 class="info-text">Dưới đây là những thông tin liên quan đến khoản vay của bạn ! </h4>
+		                                <div class="row">
+		                                    <div class="col-sm-10 col-sm-offset-1">
+		                                        <div class="col-sm-6">
+		                                            <div class="choice" data-toggle="wizard-radio" rel="tooltip" title="This is good if you travel alone.">
+		                                                <input type="radio" name="job" value="Design">
+		                                                <div class="icon">
+		                                                    <i class="material-icons">play_for_work</i>
+		                                                </div>
+		                                                <h6>Lãi suất ưu đãi</h6>
+		                                            </div>
+		                                        </div>
+		                                        <div class="col-sm-6">
+		                                            <div class="choice" data-toggle="wizard-radio" rel="tooltip" title="Select this room if you're traveling with your family.">
+		                                                <input type="radio" name="job" value="Code">
+		                                                <div class="icon">
+		                                                    <i class="material-icons">request_page</i>
+		                                                </div>
+		                                                <h6>Lãi suất thông thường</h6>
+		                                            </div>
+		                                        </div>
+
+		                                    </div>
+		                                </div>
+		                            </div>
+
+									<div class="tab-pane" id="plusService">
+										<div class="row">
+											<div class="col-sm-12">
+												<h4 class="info-text"> Bạn có muốn sử dụng thêm các dịch vụ khác ?</h4>
+											</div>
+
+											<div class="row">
+												<div class="col-sm-10 col-sm-offset-1">
+													<div class="col-sm-3">
+														<div class="choice" data-toggle="wizard-radio" rel="tooltip" title="This is good if you travel alone.">
+															<input type="radio" name="job" value="Design">
+															<div class="icon">
+																<i class="material-icons">play_for_work</i>
+															</div>
+															<h6>Tài khoản số đẹp</h6>
+														</div>
+													</div>
+													<div class="col-sm-3">
+														<div class="choice" data-toggle="wizard-radio" rel="tooltip" title="Select this room if you're traveling with your family.">
+															<input type="radio" name="job" value="Code">
+															<div class="icon">
+																<i class="material-icons">request_page</i>
+															</div>
+															<h6>Internet Banking</h6>
+														</div>
+													</div>
+													<div class="col-sm-3">
+														<div class="choice" data-toggle="wizard-radio" rel="tooltip" title="This is good if you travel alone.">
+															<input type="radio" name="job" value="Design">
+															<div class="icon">
+																<i class="material-icons">play_for_work</i>
+															</div>
+															<h6>Thẻ tín dụng</h6>
+														</div>
+													</div>
+													<div class="col-sm-3">
+														<div class="choice" data-toggle="wizard-radio" rel="tooltip" title="Select this room if you're traveling with your family.">
+															<input type="radio" name="job" value="Code">
+															<div class="icon">
+																<i class="material-icons">request_page</i>
+															</div>
+															<h6>Bảo hiểm nhân thọ</h6>
+														</div>
+													</div>
+												</div>
+											</div>
+
+											<div class="col-sm-6">
+												<div class="input-group">
+													<span class="input-group-addon">
+														<i class="material-icons">email</i>
+													</span>
+													<div class="form-group label-floating">
+														<label class="control-label">Your Email</label>
+														<input name="name" type="text" class="form-control">
+													</div>
+												</div>
+
+												<div class="input-group">
+													<span class="input-group-addon">
+														<i class="material-icons">lock_outline</i>
+													</span>
+													<div class="form-group label-floating">
+														<label class="control-label">Your Password</label>
+														<input name="name2" type="password" class="form-control">
+													</div>
+												</div>
+
+											</div>
+											<div class="col-sm-6">
+												<div class="form-group label-floating">
+													<label class="control-label">Country</label>
+													<select class="form-control">
+														<option disabled="" selected=""></option>
+														<option value="Afghanistan"> Afghanistan </option>
+														<option value="Albania"> Albania </option>
+														<option value="Algeria"> Algeria </option>
+														<option value="American Samoa"> American Samoa </option>
+														<option value="Andorra"> Andorra </option>
+														<option value="Angola"> Angola </option>
+														<option value="Anguilla"> Anguilla </option>
+														<option value="Antarctica"> Antarctica </option>
+														<option value="...">...</option>
+													</select>
+												</div>
+												<div class="form-group label-floating">
+													<label class="control-label">Daily Budget</label>
+													<select class="form-control">
+														<option disabled="" selected=""></option>
+														<option value="Afghanistan"> < $100 </option>
+														<option value="Albania"> $100 - $499 </option>
+														<option value="Algeria"> $499 - $999 </option>
+														<option value="American Samoa"> $999+ </option>
+													</select>
+												</div>
+											</div>
+										</div>
+									</div>
+
+		                            <div class="tab-pane" id="checklist">
+		                                <div class="row">
+		                                    <h4 class="info-text"> Lựa chọn danh mục hồ sơ cần cung cấp.</h4>
+		                                    <div class="col-sm-6 col-sm-offset-1">
+	                                    		<div class="form-group">
+		                                            <label>Room description</label>
+		                                            <textarea class="form-control" placeholder="" rows="6"></textarea>
+		                                        </div>
+		                                    </div>
+		                                    <div class="col-sm-4">
+		                                    	<div class="form-group">
+		                                            <label class="control-label">Example</label>
+		                                            <p class="description">"The room really nice name is recognized as being a really awesome room. We use it every sunday when we go fishing and we catch a lot. It has some kind of magic shield around it."</p>
+		                                        </div>
+		                                    </div>
+		                                </div>
+		                            </div>
+		                        </div>
+	                        	<div class="wizard-footer">
+	                            	<div class="pull-right">
+	                                    <input type='button' class='btn btn-next btn-fill btn-warning btn-wd' name='next' value='Tiếp theo' />
+	                                    <input type='button' class='btn btn-finish btn-fill btn-warning btn-wd' name='finish' value='Kết thúc' />
+	                                </div>
+	                                <div class="pull-left">
+	                                    <input type='button' class='btn btn-previous btn-fill btn-default btn-wd' name='previous' value='Quay lại' />
+
+
+	                                </div>
+	                                <div class="clearfix"></div>
+	                        	</div>
+		                    </form>
+		                </div>
+		            </div> <!-- wizard container -->
+		        </div>
+	    	</div> <!-- row -->
+		</div> <!--  big container -->
+
+	    <div class="footer">
+	        <div class="container text-center">
+	             Made with <i class="fa fa-heart heart"></i> by <a href="https://www.hitechmekong.vn">HitechMekong</a>.
+	        </div>
+	    </div>
+	</div>
+
+</body>
+	<!--   Core JS Files   -->
+	<script src="assets/js/jquery-2.2.4.min.js" type="text/javascript"></script>
+	<script src="assets/js/bootstrap.min.js" type="text/javascript"></script>
+	<script src="assets/js/jquery.bootstrap.js" type="text/javascript"></script>
+
+	<!--  Plugin for the Wizard -->
+	<script src="assets/js/material-bootstrap-wizard.js"></script>
+
+	<!--  More information about jquery.validate here: http://jqueryvalidation.org/	 -->
+	<script src="assets/js/jquery.validate.min.js"></script>
+</html>
