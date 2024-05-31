@@ -45,9 +45,13 @@ $roleID = $_SESSION["roleID"];
 $teamID = $_SESSION["teamID"];
 
 $NoOfFunction = 0;
+$url[] = "";
+$menu_name[] = "";
 
 $sql = "SELECT
-	`function`.funcName
+	`function`.funcName,
+	`function`.url,
+	`function`.menu_name
 FROM
 	emp_func
 	INNER JOIN
@@ -60,25 +64,28 @@ WHERE
 
 
 if($stmt = mysqli_prepare($link, $sql)){
-    // Bind variables to the prepared statement as parameters
-    mysqli_stmt_bind_param($stmt, "s", $param_username);
-    
-    // Set parameters
-    $param_username = $username;
-    // Attempt to execute the prepared statement
-    if(mysqli_stmt_execute($stmt)){
-        // Store result
-        mysqli_stmt_store_result($stmt);
-        
-        /* bind result variables */
-        mysqli_stmt_bind_result($stmt, $empFunction);
-        $NoOfFunction = 0;
-        while (mysqli_stmt_fetch($stmt)) {
-            $function[$NoOfFunction] = $empFunction;
-            $NoOfFunction++;
-        }
-        
+  // Bind variables to the prepared statement as parameters
+  mysqli_stmt_bind_param($stmt, "s", $param_username);
+
+  // Set parameters
+  $param_username = $username;
+  // Attempt to execute the prepared statement
+  if(mysqli_stmt_execute($stmt)){
+    // Store result
+    mysqli_stmt_store_result($stmt);
+
+    /* bind result variables */
+    mysqli_stmt_bind_result($stmt, $empFunction, $pUrl, $pMenu_name);
+    $NoOfFunction = 0;
+    while (mysqli_stmt_fetch($stmt)) {
+      $function[$NoOfFunction] = $empFunction;
+      $url[$NoOfFunction] = $pUrl;
+      $menu_name[$NoOfFunction] = $pMenu_name;
+
+      $NoOfFunction++;
     }
+
+  }
 }
 
 //declare variable
@@ -456,6 +463,17 @@ mysqli_close($link);
             <a href='employeekpi.php' class='nav-link'>
               <i class='nav-icon fas fa-chart-line'></i>
               <p>Quản lý KPIs</p>
+            </a>
+          </li>
+                ";
+              }
+
+              else if ($function[$i] == "KPIcalcTools") {
+                echo "
+            <li class='nav-item'>
+            <a href='" . $url[$i] ."' class='nav-link'>
+              <i class='nav-icon fas fa-chart-line'></i>
+              <p>" . $menu_name[$i] . "</p>
             </a>
           </li>
                 ";

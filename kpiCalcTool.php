@@ -34,6 +34,7 @@ require_once "config.php";
 // Define variables and initialize with empty values
 $username= "";
 $fullname="";
+$todoStatus[] = "";
 
 //Read data from session
 $empID = $_SESSION["id"];
@@ -44,6 +45,7 @@ $roleID = $_SESSION["roleID"];
 $teamID = $_SESSION["teamID"];
 
 $NoOfFunction = 0;
+
 $url[] = "";
 $menu_name[] = "";
 
@@ -63,28 +65,28 @@ WHERE
 
 
 if($stmt = mysqli_prepare($link, $sql)){
-  // Bind variables to the prepared statement as parameters
-  mysqli_stmt_bind_param($stmt, "s", $param_username);
+    // Bind variables to the prepared statement as parameters
+    mysqli_stmt_bind_param($stmt, "s", $param_username);
+    
+    // Set parameters
+    $param_username = $username;
+    // Attempt to execute the prepared statement
+    if(mysqli_stmt_execute($stmt)){
+        // Store result
+        mysqli_stmt_store_result($stmt);
+        
+        /* bind result variables */
+        mysqli_stmt_bind_result($stmt, $empFunction, $pUrl, $pMenu_name);
+        $NoOfFunction = 0;
+        while (mysqli_stmt_fetch($stmt)) {
+            $function[$NoOfFunction] = $empFunction;
+            $url[$NoOfFunction] = $pUrl;
+            $menu_name[$NoOfFunction] = $pMenu_name;
 
-  // Set parameters
-  $param_username = $username;
-  // Attempt to execute the prepared statement
-  if(mysqli_stmt_execute($stmt)){
-    // Store result
-    mysqli_stmt_store_result($stmt);
-
-    /* bind result variables */
-    mysqli_stmt_bind_result($stmt, $empFunction, $pUrl, $pMenu_name);
-    $NoOfFunction = 0;
-    while (mysqli_stmt_fetch($stmt)) {
-      $function[$NoOfFunction] = $empFunction;
-      $url[$NoOfFunction] = $pUrl;
-      $menu_name[$NoOfFunction] = $pMenu_name;
-
-      $NoOfFunction++;
+            $NoOfFunction++;
+        }
+        
     }
-
-  }
 }
 
 //declare variable
@@ -144,56 +146,6 @@ if($stmt = mysqli_prepare($link, $sql)){
 $_SESSION["branchName"] = $branchName;
 $_SESSION["roleName"] = $roleName;
 
-//Count number of Case are processing
-$sql = "SELECT
-	`case`.caseID
-FROM
-	`case`
-	INNER JOIN
-	`status`
-	ON 
-		`case`.statusID = `status`.statusID
-	INNER JOIN
-	employee
-	ON 
-		`case`.empID = employee.id
-	INNER JOIN
-	product
-	ON 
-		`case`.productID = product.productID
-	INNER JOIN
-	producttype
-	ON 
-		product.typeID = producttype.typeID
-WHERE
-	employee.username = ? AND
-	`status`.statusName = 'Đang xử lý' OR
-	(
-		`status`.statusName = 'Đang thu thập hồ sơ' OR
-		`status`.statusName = 'Đang giới thiệu'
-	) AND
-	producttype.typeName = 'Tín dụng'";
-
-if($stmt = mysqli_prepare($link, $sql)){
-    // Bind variables to the prepared statement as parameters
-    mysqli_stmt_bind_param($stmt, "s", $param_username);
-    
-    // Set parameters
-    $param_username = $username;
-    // Attempt to execute the prepared statement
-    if(mysqli_stmt_execute($stmt)){
-        // Store result
-        mysqli_stmt_store_result($stmt);
-        
-        /* bind result variables */
-        mysqli_stmt_bind_result($stmt, $empFunction);
-        $NoOfCase = 0;
-        while (mysqli_stmt_fetch($stmt)) {
-            $NoOfCase++;
-        }
-        
-    }
-}
 
 
 //get Message
@@ -222,7 +174,6 @@ if($stmt = mysqli_prepare($link, $sql)){
     
     // Set parameters
     $param = $roleID;
-    
     // Attempt to execute the prepared statement
     if(mysqli_stmt_execute($stmt)){
         // Store result
@@ -246,8 +197,11 @@ $sql = "SELECT
 	todo.todoID, 
 	CAST(todo.startTime as Date) as StartDate,
 	CAST(todo.endTime as Date) as EndDate,
+    CAST(todo.startTime as Time) as StartTime,
+	CAST(todo.endTime as Time) as EndTime,
 	todo.todoContent, 
-	statustodo.statusName
+	statustodo.statusName,
+    todo.isLate
 FROM
 	todo
 	INNER JOIN
@@ -260,7 +214,7 @@ FROM
 		todo.empID = employee.id
 WHERE
 	todo.empID = ? AND
-	todo.startTime >= CURDATE() - 3
+	todo.startTime >= CURDATE() - 2
 ORDER BY
 	statustodo.statusName DESC, 
 	todo.startTime DESC";
@@ -279,15 +233,18 @@ if($stmt = mysqli_prepare($link, $sql)){
         mysqli_stmt_store_result($stmt);
         
         /* bind result variables */
-        mysqli_stmt_bind_result($stmt, $bTodoID, $bTodoStartTime, $bTodoEndTime, $bTodoContent, $bTodoStatus);
+        mysqli_stmt_bind_result($stmt, $bTodoID,$bTodoStartDate, $bTodoEndDate, $bTodoStartTime, $bTodoEndTime, $bTodoContent, $bTodoStatus, $bLate);
         $NoOfTodo = 0;
        
         while (mysqli_stmt_fetch($stmt)) {
             $todoID[$NoOfTodo] = $bTodoID;
-            $todoStartDate [$NoOfTodo] = $bTodoStartTime;
-            $todoEndDate[$NoOfTodo] = $bTodoEndTime;
+            $todoStartDate [$NoOfTodo] = $bTodoStartDate;
+            $todoEndDate[$NoOfTodo] = $bTodoEndDate;
+            $todoStartTime [$NoOfTodo] = $bTodoStartTime;
+            $todoEndTime[$NoOfTodo] = $bTodoEndTime;
             $todoContent[$NoOfTodo] = $bTodoContent;
             $todoStatus[$NoOfTodo] = $bTodoStatus;
+            $todoLate[$NoOfTodo] = $bLate;
             $NoOfTodo++;
             if ($bTodoStatus == "Processing") {
                 $NoOfPendingTodo++;
@@ -295,6 +252,12 @@ if($stmt = mysqli_prepare($link, $sql)){
         }
         
     }
+}
+
+//store todoList to SESSION
+if ($NoOfTodo > 0) {
+    $_SESSION["todoID"] = $todoID;
+    $_SESSION["todoStatus"] = $todoStatus;
 }
 
 
@@ -309,7 +272,7 @@ mysqli_close($link);
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <title>Dashboard | Hệ thống quản trị KPI - PVcomBank</title>
+  <title>Quản lý công việc | Hệ thống quản trị KPI - PVcomBank</title>
   <!-- Tell the browser to be responsive to screen width -->
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <!-- Font Awesome -->
@@ -485,7 +448,7 @@ mysqli_close($link);
               if ($function[$i] == "DashboardEmp") {
                   echo " 
                 <li class='nav-item'>
-            <a href='employee.php' class='nav-link active'>
+            <a href='employee.php' class='nav-link'>
               <i class='nav-icon fas fa-tachometer-alt'></i>
               <p>Dashboard</p>
             </a>
@@ -610,7 +573,7 @@ mysqli_close($link);
               else if ($function[$i] == "WorkManage") {
                   echo "
            <li class='nav-item'>
-            <a href='empWorkManage.php' class='nav-link'>
+            <a href='empWorkManage.php' class='nav-link active'>
               <i class='nav-icon fas fa-edit'></i>
               <p>
                 Quản lý công việc
@@ -690,7 +653,6 @@ mysqli_close($link);
             </ul>
           </li>
           
-          
           <li class="nav-item">
             <a href="logout.php" class="nav-link">
               <i class="nav-icon fas fa-door-open"></i>
@@ -714,12 +676,12 @@ mysqli_close($link);
       <div class="container-fluid">
         <div class="row mb-2">
           <div class="col-sm-6">
-            <h1 class="m-0 text-dark">Dashboard (Bảng thống kê)</h1>
+            <h1 class="m-0 text-dark">Quản lý công việc</h1>
           </div><!-- /.col -->
           <div class="col-sm-6">
             <ol class="breadcrumb float-sm-right">
-              <li class="breadcrumb-item"><a href="#">Trang chủ</a></li>
-              <li class="breadcrumb-item active">Dashboard</li>
+              <li class="breadcrumb-item"><a href="#">Quản lý công việc</a></li>
+              <li class="breadcrumb-item active">Todo List</li>
             </ol>
           </div><!-- /.col -->
         </div><!-- /.row -->
@@ -730,69 +692,7 @@ mysqli_close($link);
     <!-- Main content -->
     <section class="content">
       <div class="container-fluid">
-        <!-- Small boxes (Stat box) -->
-        <div class="row">
-          <div class="col-lg-3 col-6">
-            <!-- small box -->
-            <div class="small-box bg-info">
-              <div class="inner">
-                <h3>05<sup style="font-size: 20px"> Hồ sơ</sup> </h3>
-                <p>Hồ sơ đang xử lý</p>
-              </div>
-              <div class="icon">
-                <i class="fas fa-folder-open"></i>
-              </div>
-              <a href="#" class="small-box-footer">Thông tin chi tiết <i class="fas fa-arrow-circle-right"></i></a>
-            </div>
-          </div>
-          <!-- ./col -->
-          <div class="col-lg-3 col-6">
-            <!-- small box -->
-            <div class="small-box bg-success">
-              <div class="inner">
-                <h3>54<sup style="font-size: 20px"> Tr đ</sup></h3>
-
-                <p>Doanh số bảo hiểm</p>
-              </div>
-              <div class="icon">
-                <i class="fas fa-handshake"></i>
-              </div>
-              <a href="#" class="small-box-footer">Thông tin chi tiết <i class="fas fa-arrow-circle-right"></i></a>
-            </div>
-          </div>
-          <!-- ./col -->
-          <div class="col-lg-3 col-6">
-            <!-- small box -->
-            <div class="small-box bg-warning">
-              <div class="inner">
-                <h3>08<sup style="font-size: 20px"> Tỉ đ</sup> </h3>
-
-                <p>Doanh số giải ngân</p>
-              </div>
-              <div class="icon">
-                <i class="fas fa-donate"></i>
-              </div>
-              <a href="#" class="small-box-footer">Thông tin chi tiết <i class="fas fa-arrow-circle-right"></i></a>
-            </div>
-          </div>
-          <!-- ./col -->
-          <div class="col-lg-3 col-6">
-            <!-- small box -->
-            <div class="small-box bg-danger">
-              <div class="inner">
-                <h3>65<sup style="font-size: 20px;"> %</sup> </h3>
-
-                <p>Tỉ lệ hoàn thành KPI</p>
-              </div>
-              <div class="icon">
-                <i class="ion ion-pie-graph"></i>
-              </div>
-              <a href="#" class="small-box-footer">Thông tin chi tiết <i class="fas fa-arrow-circle-right"></i></a>
-            </div>
-          </div>
-          <!-- ./col -->
-        </div>
-        <!-- /.row -->
+       
         <!-- Main row -->
         <div class="row">
           <!-- Left col -->
@@ -808,18 +708,29 @@ mysqli_close($link);
                   <i class="ion ion-clipboard mr-1"></i>
                   Công việc cần làm
                 </h3>
-
+			
                 <div class="card-tools">
                   <ul class="pagination pagination-sm">
                     <li class="page-item"><a href="#" class="page-link">&laquo;</a></li>
-                    <li class="page-item"><a href="#" class="page-link">1</a></li>
-                    <li class="page-item"><a href="#" class="page-link">2</a></li>
-                    <li class="page-item"><a href="#" class="page-link">3</a></li>
+                    <?php 
+                    if ($NoOfTodo >= 10) {
+                        $pageTodo = $NoOfTodo/10 + 1;
+                    } else $pageTodo = 1;
+                    
+                    for ($i = 1 ; $i <= $pageTodo; $i ++) {
+                        echo "<li class='page-item'><a href='#' class='page-link'>";
+                        echo $i;
+                        echo "</a></li>";
+                    }
+                    
+                    ?>
+                    
                     <li class="page-item"><a href="#" class="page-link">&raquo;</a></li>
                   </ul>
                 </div>
               </div>
               <!-- /.card-header -->
+              <form id="form_todoList" action="db/updateTodoStatus_Emp.php" method="post">
               <div class="card-body">
                 <ul class="todo-list" data-widget="todo-list">
                   <?php 
@@ -833,35 +744,39 @@ mysqli_close($link);
                     </span>
                     <!-- checkbox -->
                     <div  class='icheck-primary d-inline ml-2'>
-                      <input type='checkbox' value='' name='todo";
-                    echo $i;
-                    echo "' id='todoCheck";
-                    echo $i;
-                    echo "'";
+                      <input type='checkbox' value='" . $todoID[$i]. "' name='todoCheckBox[]'  id='todoCheck" . $i ."'";
                     if ($todoStatus[$i] == "Finished") {
                           echo "checked";
                       }
                       echo ">
-                      <label for='todoCheck";
-                      echo $i;
-                      echo "'></label>
-                    </div>
+                      <label for='todoCheck" . $i . "'></label></div>
                     <!-- todo text -->
-                    <span class='text'>";
-                    echo $todoContent[$i];
-                    echo " (";
-                    echo $todoStartDate[$i];
-                    echo ")";
-                    echo "</span>
+                    <span class='text'>" . $todoContent[$i] . "</span>
+                    
                     <!-- Emphasis label -->
-                    <small class='badge badge-danger'><i class='fas fa-user-tie'></i>";
-                    echo " ";
-                    echo $fullname;
-                    echo "</small>
-                    <!-- General tools such as edit or delete-->
+                    <small class='badge badge-success'><i class='fas fa-clock'></i> " ."  " . date('H:i',strtotime($todoStartTime[$i])) . " | " . $todoStartDate[$i] . "</small>
+                    <small class='badge badge-danger'><i class='fas fa-user-tie'></i>" ." " . $fullname . "</small>";;
+                     
+                      $openDoorTime = date("h:i a",(mktime(8,00,00)));
+                      
+                      if (($todoStartTime[$i] <= $openDoorTime) && ($openDoorTime <= $todoEndTime[$i])) {
+                          echo "<small class='badge badge-warning'><i class='fas fa-bell'></i>  Trễ giờ làm</small>";
+                      }
+                      if ($todoLate[$i] == "request") {
+                          echo "<small class='badge badge-warning'><i class='fas fa-hand-point-right'></i>  Chờ duyệt đi trễ</small>";
+                      }
+                      if ($todoLate[$i] == "accepted") {
+                          echo "<small class='badge badge-success'><i class='fas fa-user-check'></i>  Đã duyệt đi trễ</small>";
+                      }
+                      if ($todoLate[$i] == "denied") {
+                          echo "<small class='badge badge-danger'><i class='fas fa-user-times'></i>  Không duyệt đi trễ</small>";
+                      }
+                    echo 
+                    "<!-- General tools such as edit or delete-->
                     <div class='tools'>
-                      <i class='fas fa-edit'></i>
-                      <i class='fas fa-trash-o'></i>
+                      
+                      <i id='" . $todoID[$i] ."' class='edit_data fas fa-edit'></i>
+                      <i id='" .$todoID[$i] .  "' class='delete_data fas fa-trash-alt'></i>
                     </div>
                   </li>
     
@@ -870,175 +785,157 @@ mysqli_close($link);
                   
                   
                   ?>
-                  
-                  
-                  
+           
                 </ul>
               </div>
               <!-- /.card-body -->
               <div class="card-footer clearfix">
-                <button type="button" class="btn btn-info float-right"><i class="fas fa-plus"></i> Add item</button>
+                <button type="submit" class="btn btn-info float-right"><i class="fas fa-sync-alt"></i> Cập nhật trạng thái</button>
               </div>
+              </form>
             </div>
             <!-- /.card -->
             
-            <div class="card">
-              <div class="card-header">
-                <h3 class="card-title">
-                  <i class="fas fa-chart-pie mr-1"></i>
-                  Kết quả kinh doanh Tháng
-                </h3>
-                <div class="card-tools">
-                  <ul class="nav nav-pills ml-auto">
-                    <li class="nav-item">
-                      <a class="nav-link active" href="#revenue-chart" data-toggle="tab">Kế hoạch</a>
-                    </li>
-                    <li class="nav-item">
-                      <a class="nav-link" href="#sales-chart" data-toggle="tab">Thực hiện</a>
-                    </li>
-                  </ul>
-                </div>
-              </div><!-- /.card-header -->
-              <div class="card-body">
-                <div class="tab-content p-0">
-                  <!-- Morris chart - Sales -->
-                  <div class="chart tab-pane active" id="revenue-chart"
-                       style="position: relative; height: 300px;">
-                      <canvas id="revenue-chart-canvas" height="300" style="height: 300px;"></canvas>                         
-                   </div>
-                  <div class="chart tab-pane" id="sales-chart" style="position: relative; height: 300px;">
-                    <canvas id="sales-chart-canvas" height="300" style="height: 300px;"></canvas>                         
-                  </div>  
-                </div>
-              </div><!-- /.card-body -->
-            </div>
-            <!-- /.card -->
+           
             
             
           </section>
           <!-- /.Left col -->
           <!-- right col (We are only adding the ID to make the widgets sortable)-->
-          <section class="col-lg-5 connectedSortable">
-
-            <!-- solid sales graph -->
-            
-
-            <!-- Calendar -->
-            <div class="card bg-gradient-success">
-              <div class="card-header border-0">
-
-                <h3 class="card-title">
-                  <i class="far fa-calendar-alt"></i>
-                  Calendar
-                </h3>
-                <!-- tools card -->
-                <div class="card-tools">
-                  <!-- button with a dropdown -->
-                  <div class="btn-group">
-                    <button type="button" class="btn btn-success btn-sm dropdown-toggle" data-toggle="dropdown">
-                      <i class="fas fa-bars"></i></button>
-                    <div class="dropdown-menu float-right" role="menu">
-                      <a href="#" class="dropdown-item">Add new event</a>
-                      <a href="#" class="dropdown-item">Clear events</a>
-                      <div class="dropdown-divider"></div>
-                      <a href="#" class="dropdown-item">View calendar</a>
+          <section class="col-lg-5">
+		  
+          <div class = "row">
+                    <div class="col-lg-6">
+                        <!-- small box -->
+                        <div class="small-box bg-success">
+                          <div class="inner">
+                            <h3><?php 
+                            $NoOfFinishTodo = 0;
+                            foreach ($todoStatus as $value) {
+                                if ($value == "Finished") {
+                                $NoOfFinishTodo++;
+                            }
+                        }
+                        echo $NoOfFinishTodo;
+                        
+                        ?><sup style="font-size: 20px"> Công việc</sup> </h3>
+                        <p>Hoàn thành hôm nay</p>
+                      </div>
+                      <div class="icon">
+                        <i class="fas fa-calendar-check"></i>
+                      </div>
+                      
                     </div>
                   </div>
-                  <button type="button" class="btn btn-success btn-sm" data-card-widget="collapse">
-                    <i class="fas fa-minus"></i>
-                  </button>
-                  <button type="button" class="btn btn-success btn-sm" data-card-widget="remove">
-                    <i class="fas fa-times"></i>
-                  </button>
-                </div>
-                <!-- /. tools -->
-              </div>
-              <!-- /.card-header -->
-              <div class="card-body pt-0">
-                <!--The calendar -->
-                <div id="calendar" style="width: 100%"></div>
-              </div>
-              <!-- /.card-body -->
-            </div>
-
-            <!-- Map card -->
-            <div class="card bg-gradient-primary">
-
-
-              <div class="card-footer bg-transparent">
-                <div class="row">
-                  <div class="col-4 text-center">
-                    <div id="sparkline-1"></div>
-                    <div class="text-white">Visitors</div>
+                  <!-- ./col -->
+                  <div class="col-lg-6">
+                    <!-- small box -->
+                    <div class="small-box bg-danger">
+                      <div class="inner">
+                        <h3><?php 
+                        $NoOfProcessingTodo = 0;
+                        foreach ($todoStatus as $value) {
+                            if ($value != "Finished" && $value != "") {
+                                $NoOfProcessingTodo++;
+                            }
+                        }
+                        echo $NoOfProcessingTodo;
+                        
+                        ?><sup style="font-size: 20px"> Công việc</sup></h3>
+        
+                        <p>Chưa hoàn thành hôm nay</p>
+                      </div>
+                      <div class="icon">
+                        <i class="fas fa-calendar-times"></i>
+                      </div>
+                      
+                    </div>
                   </div>
                   <!-- ./col -->
-                  <div class="col-4 text-center">
-                    <div id="sparkline-2"></div>
-                    <div class="text-white">Online</div>
-                  </div>
-                  <!-- ./col -->
-                  <div class="col-4 text-center">
-                    <div id="sparkline-3"></div>
-                    <div class="text-white">Sales</div>
-                  </div>
-                  <!-- ./col -->
-                </div>
-                <!-- /.row -->
+            	</div>
+          <div class="row">
+            <div class="card card-primary">
+              <div class="card-header">
+                <h3 class="card-title">Thêm mới công việc</h3>
               </div>
-            </div>
-            <!-- /.card -->
-            
-            <div class="card bg-gradient-info">
-              <div class="card-header border-0">
-                <h3 class="card-title">
-                  <i class="fas fa-th mr-1"></i>
-                  Kết quả kinh doanh theo Quý
-                </h3>
-
-                <div class="card-tools">
-                  <button type="button" class="btn bg-info btn-sm" data-card-widget="collapse">
-                    <i class="fas fa-minus"></i>
-                  </button>
-                  <button type="button" class="btn bg-info btn-sm" data-card-widget="remove">
-                    <i class="fas fa-times"></i>
-                  </button>
-                </div>
-              </div>
+              <form id="addTodo" action="db/addTodoEmp.php" method="post">
               <div class="card-body">
-                <canvas class="chart" id="line-chart" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
+                
+                 <!-- Start Row -->
+              
+                <div class = "row">
+                	<div class = "col-lg-6">
+                		<div class="bootstrap-timepicker">
+                          <div class="form-group">
+                            <label>Thời gian bắt đầu:</label>
+        
+                            <div class="input-group date" id="start_timepicker" data-target-input="nearest">
+                              <div class="input-group-append" data-target="#start_timepicker" data-toggle="datetimepicker">
+                                  <div class="input-group-text"><i class="far fa-clock"></i></div>
+                              </div>
+                              <input type="text" name="todo_startTime" id="todo_startTime" class="form-control datetimepicker-input" data-target="#timepicker" required/>
+                              
+                              </div>
+                            <!-- /.input group -->
+                          </div>
+                          <!-- /.form group -->
+                        </div>
+                	</div>
+                	<div class="col-lg-6">
+                		<div class="bootstrap-timepicker">
+                          <div class="form-group">
+                            <label>Thời gian kết thúc:</label>
+        
+                            <div class="input-group date" id="end_timepicker" data-target-input="nearest">
+                              <div class="input-group-append" data-target="#end_timepicker" data-toggle="datetimepicker">
+                                  <div class="input-group-text"><i class="far fa-clock"></i></div>
+                              </div>
+                              <input type="text" name="todo_endTime" id="todo_endTime" class="form-control datetimepicker-input" data-target="#timepicker" required/>
+                              
+                              </div>
+                            <!-- /.input group -->
+                          </div>
+                          <!-- /.form group -->
+                        </div>
+                	</div>
+                </div>               
+                <!-- end of row -->
+				<div class="row">
+					<div class="col-lg-12">
+                      <!-- textarea -->
+                      <div class="form-group">
+                        <label>Nội dung công việc</label>
+                        <textarea class="form-control" name="todo_content" id="todo_content" rows="2" placeholder="Nhập nội dung ..." required></textarea>
+                      </div>
+                    </div>
+				</div>
+				
+				<div class="row"> 
+				<div class="col-lg-12"> 
+					<div class="custom-control custom-checkbox">
+                      <input class="custom-control-input" type="checkbox" id="isLate" name="isLate" value="request">
+                      <label for="isLate" class="custom-control-label">Đăng ký đi trễ</label>
+             		</div>
+             	</div>
+				</div>
+				
               </div>
-              <!-- /.card-body -->
-              <div class="card-footer bg-transparent">
-                <div class="row">
-                  <div class="col-4 text-center">
-                    <input type="text" class="knob" data-readonly="true" value="20" data-width="60" data-height="60"
-                           data-fgColor="#39CCCC">
-
-                    <div class="text-white">Mail-Orders</div>
-                  </div>
-                  <!-- ./col -->
-                  <div class="col-4 text-center">
-                    <input type="text" class="knob" data-readonly="true" value="50" data-width="60" data-height="60"
-                           data-fgColor="#39CCCC">
-
-                    <div class="text-white">Online</div>
-                  </div>
-                  <!-- ./col -->
-                  <div class="col-4 text-center">
-                    <input type="text" class="knob" data-readonly="true" value="30" data-width="60" data-height="60"
-                           data-fgColor="#39CCCC">
-
-                    <div class="text-white">In-Store</div>
-                  </div>
-                  <!-- ./col -->
-                </div>
-                <!-- /.row -->
+              
+              <!-- end check box Request Late-->
+              
+              
+              
+              <!-- end Checkbox Request late -->
+              
+              
+              <!-- end Card Body -->
+              <div class="card-footer">
+                  <button id="addTodo" name="addTodo" type="submit" class="btn btn-primary"><i class="fas fa-plus"></i> Thêm mới</button>
               </div>
-              <!-- /.card-footer -->
+              </form>
+              
             </div>
-            <!-- /.card -->
-
-
+			</div>
             <!-- /.card -->
           </section>
           <!-- right col -->
@@ -1048,6 +945,74 @@ mysqli_close($link);
     </section>
     <!-- /.content -->
   </div>
+  
+  <!-- Popup to Edit Todo Content -->
+  
+  <div id="edit_todo_modal" class="modal fade">
+  	<div class="modal-dialog">  
+           <div class="modal-content">  
+                <div class="modal-header">  
+                     <h4 class="modal-title">Cập nhật nội dung công việc</h4>
+                     <button type="button" class="close" data-dismiss="modal">&times;</button>  
+                       
+                </div>  
+                <div class="modal-body">  
+                     <form name="edit_form" action="db/updateTodoFullContent_Emp.php" method="post">  
+                          <div class = "row">
+                        	<div class = "col-lg-6">
+                        		<div class="bootstrap-timepicker">
+                                  <div class="form-group">
+                                    <label>Thời gian bắt đầu:</label>
+                
+                                    <div class="input-group date" id="start_timepicker_popup" data-target-input="nearest">
+                                      <div class="input-group-append" data-target="#start_timepicker_popup" data-toggle="datetimepicker">
+                                          <div class="input-group-text"><i class="far fa-clock"></i></div>
+                                      </div>
+                                      <input type="text" id="todo_startTime_popup" name="todo_startTime_popup" class="form-control datetimepicker-input" data-target="#timepicker" required/>
+                                      
+                                      </div>
+                                    <!-- /.input group -->
+                                  </div>
+                                  <!-- /.form group -->
+                                </div>
+                        	</div>
+                        	<div class="col-lg-6">
+                        		<div class="bootstrap-timepicker">
+                                  <div class="form-group">
+                                    <label>Thời gian kết thúc:</label>
+                
+                                    <div class="input-group date" id="end_timepicker_popup" data-target-input="nearest">
+                                      <div class="input-group-append" data-target="#end_timepicker_popup" data-toggle="datetimepicker">
+                                          <div class="input-group-text"><i class="far fa-clock"></i></div>
+                                      </div>
+                                      <input type="text" id="todo_endTime_popup" name="todo_endTime_popup" class="form-control datetimepicker-input" data-target="#timepicker" required/>
+                                      
+                                      </div>
+                                    <!-- /.input group -->
+                                  </div>
+                                  <!-- /.form group -->
+                                </div>
+                        	</div>
+                        </div>               
+                          <div class="row">
+        					<div class="col-lg-12">
+                              <!-- textarea -->
+                              <div class="form-group">
+                                <label>Nội dung công việc</label>
+                                <textarea class="form-control" id="todo_content_popup" name="todo_content_popup" rows="2" placeholder="Nhập nội dung ..." required></textarea>
+                              </div>
+                            </div>
+        				</div>
+                         <br>
+                          <input type="hidden" name="todo_id" id="todo_id" />  
+                          <button id="edit_todo" type="submit" name="update_todo" class="btn btn-primary"><i class="fas fa-redo-alt"></i> Cập nhật thông tin</button>
+                         
+                     </form>  
+                </div>  
+           </div>  
+      </div>  
+  </div>
+  
   <!-- /.content-wrapper -->
   <footer class="main-footer">
     <strong>Copyright &copy; 2020 <a href="#">Ứng dụng quản lý KPI - PVcomBank (mBPM)</a>.</strong>
@@ -1099,5 +1064,155 @@ mysqli_close($link);
 <script src="dist/js/pages/dashboard.js"></script>
 <!-- AdminLTE for demo purposes -->
 <script src="dist/js/demo.js"></script>
+<!-- AJAX Bootbox for Bootstrap -->
+<script src="plugins/bootbox/bootbox.min.js"></script>
+<!-- JQuery Validation -->
+<script src="plugins/jquery-validation/jquery.validate.min.js"></script>
+
+
+<!-- Script for Date Time Picker -->
+<script>
+  $(function () {
+    //Initialize Select2 Elements
+    $('.select2').select2()
+
+    //Initialize Select2 Elements
+    $('.select2bs4').select2({
+      theme: 'bootstrap4'
+    })
+
+    //Datemask dd/mm/yyyy
+    $('#datemask').inputmask('dd/mm/yyyy', { 'placeholder': 'dd/mm/yyyy' })
+    //Datemask2 mm/dd/yyyy
+    $('#datemask2').inputmask('mm/dd/yyyy', { 'placeholder': 'mm/dd/yyyy' })
+    //Money Euro
+    $('[data-mask]').inputmask()
+
+    //Date range picker
+    $('#reservation').daterangepicker()
+    //Date range picker with time picker
+    $('#reservationtime').daterangepicker({
+      timePicker: true,
+      timePickerIncrement: 30,
+      locale: {
+        format: 'MM/DD/YYYY hh:mm A'
+      }
+    })
+    //Date range as a button
+    $('#daterange-btn').daterangepicker(
+      {
+        ranges   : {
+          'Today'       : [moment(), moment()],
+          'Yesterday'   : [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+          'Last 7 Days' : [moment().subtract(6, 'days'), moment()],
+          'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+          'This Month'  : [moment().startOf('month'), moment().endOf('month')],
+          'Last Month'  : [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+        },
+        startDate: moment().subtract(29, 'days'),
+        endDate  : moment()
+      },
+      function (start, end) {
+        $('#reportrange span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'))
+      }
+    )
+
+    //StartTimepicker
+    $('#start_timepicker').datetimepicker({
+      format: 'LT'
+    })
+    
+    //EndTimePicker
+    $('#end_timepicker').datetimepicker({
+      format: 'LT'
+    })
+    
+    //StartTimepicker Popup
+    $('#start_timepicker_popup').datetimepicker({
+      format: 'LT'
+    })
+    
+    //EndTimePicker Popup
+    $('#end_timepicker_popup').datetimepicker({
+      format: 'LT'
+    })
+    
+    //Bootstrap Duallistbox
+    $('.duallistbox').bootstrapDualListbox()
+
+    //Colorpicker
+    $('.my-colorpicker1').colorpicker()
+    //color picker with addon
+    $('.my-colorpicker2').colorpicker()
+
+    $('.my-colorpicker2').on('colorpickerChange', function(event) {
+      $('.my-colorpicker2 .fa-square').css('color', event.color.toString());
+    });
+
+    $("input[data-bootstrap-switch]").each(function(){
+      $(this).bootstrapSwitch('state', $(this).prop('checked'));
+    });
+
+  })
+</script>
+
+
+<!-- Script to control Edit Todo Content pop-up -->
+<script>  
+ $(document).ready(function(){  
+      
+      $('.edit_data').click(function(){  
+           var todoID = $(this).attr("id");  
+           $.ajax({  
+                url:"db/selectTodoFullContent.php",  
+                method:"POST",  
+                data:{todoID: todoID},  
+                dataType:"json",  
+                success:function(data){  
+                	 $('#todo_id').val(data.todoID);
+                     $('#todo_startTime_popup').val(data.startTime);  
+                     $('#todo_endTime_popup').val(data.endTime);  
+                     $('#todo_content_popup').val(data.content);  
+                     $('#edit_todo_modal').modal('show');
+                }  
+           });  
+      });  
+      
+   // Delete 
+	  $('.delete_data').click(function(){
+	    
+	    // Delete id
+	    var todoID = $(this).attr('id');
+	 
+	    // Confirm box
+	    bootbox.confirm("Bạn có muốn xóa công việc này không ?", function(result) {
+	 
+	       if(result){
+	         // AJAX Request
+	         $.ajax({
+	           url: 'db/deleteTodo.php',
+	           type: 'POST',
+	           data: {todoID: todoID},
+	           success: function(response){
+				//bootbox.alert(response);
+	             // Refresh page
+	             if(response){
+	            	 location.reload();
+				 } else{
+					bootbox.alert('Không xóa dữ liệu được, vui lòng liên hệ IT !');
+		     	 }
+
+	           }
+	         });
+	       }
+	 
+	    });
+	 
+	  });
+      
+});  
+ </script>
+ 
+ 
 </body>
 </html>
