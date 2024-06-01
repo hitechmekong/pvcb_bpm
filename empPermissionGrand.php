@@ -887,6 +887,7 @@ mysqli_close($link);
                           if($selectedRoleID == 5 || $selectedRoleID == 6) {
                             echo '<option value=3>Bảng thống kê</option>';
                             echo '<option value=5>Quản lý KPI</option>';
+                            echo '<option value=12>Công cụ tính KPI</option>';
                             echo '<option value=6>Quản lý khách hàng</option>';
                             echo '<option value=7>Quản lý hồ sơ</option>';
                             echo '<option value=9>Quản lý công việc</option>';

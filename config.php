@@ -3,7 +3,7 @@
 server with default setting (user 'root' with no password) */
 define('DB_HOST', 'localhost:3306');
 define('DB_USERNAME', 'root');
-define('DB_PASSWORD', 'abxyvuv2');
+define('DB_PASSWORD', '');
 define('DB_NAME', 'pvcb_mbpm');
 
 //Connect info for hostvn server
