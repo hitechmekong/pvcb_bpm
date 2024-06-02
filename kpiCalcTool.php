@@ -192,73 +192,21 @@ if($stmt = mysqli_prepare($link, $sql)){
     }
 }
 
-//Count TodoList
+//get List of KPI by Role
 $sql = "SELECT
-	todo.todoID, 
-	CAST(todo.startTime as Date) as StartDate,
-	CAST(todo.endTime as Date) as EndDate,
-    CAST(todo.startTime as Time) as StartTime,
-	CAST(todo.endTime as Time) as EndTime,
-	todo.todoContent, 
-	statustodo.statusName,
-    todo.isLate
+kpi_list.*, 
+kpi_role.*
 FROM
-	todo
-	INNER JOIN
-	statustodo
-	ON 
-		todo.statusID = statustodo.statusID
-	INNER JOIN
-	employee
-	ON 
-		todo.empID = employee.id
+kpi_list
+INNER JOIN
+kpi_role
+ON 
+  kpi_list.id = kpi_role.kpi_id
 WHERE
-	todo.empID = ? AND
-	todo.startTime >= CURDATE() - 2
-ORDER BY
-	statustodo.statusName DESC, 
-	todo.startTime DESC";
+kpi_list.kpi_year = 2024 AND
+kpi_role.role_id = 5";
 
-$NoOfPendingTodo = 0;
-
-if($stmt = mysqli_prepare($link, $sql)){
-    // Bind variables to the prepared statement as parameters
-    mysqli_stmt_bind_param($stmt, "i", $param);
-    
-    // Set parameters
-    $param = $empID;
-    // Attempt to execute the prepared statement
-    if(mysqli_stmt_execute($stmt)){
-        // Store result
-        mysqli_stmt_store_result($stmt);
-        
-        /* bind result variables */
-        mysqli_stmt_bind_result($stmt, $bTodoID,$bTodoStartDate, $bTodoEndDate, $bTodoStartTime, $bTodoEndTime, $bTodoContent, $bTodoStatus, $bLate);
-        $NoOfTodo = 0;
-       
-        while (mysqli_stmt_fetch($stmt)) {
-            $todoID[$NoOfTodo] = $bTodoID;
-            $todoStartDate [$NoOfTodo] = $bTodoStartDate;
-            $todoEndDate[$NoOfTodo] = $bTodoEndDate;
-            $todoStartTime [$NoOfTodo] = $bTodoStartTime;
-            $todoEndTime[$NoOfTodo] = $bTodoEndTime;
-            $todoContent[$NoOfTodo] = $bTodoContent;
-            $todoStatus[$NoOfTodo] = $bTodoStatus;
-            $todoLate[$NoOfTodo] = $bLate;
-            $NoOfTodo++;
-            if ($bTodoStatus == "Processing") {
-                $NoOfPendingTodo++;
-            }
-        }
-        
-    }
-}
-
-//store todoList to SESSION
-if ($NoOfTodo > 0) {
-    $_SESSION["todoID"] = $todoID;
-    $_SESSION["todoStatus"] = $todoStatus;
-}
+$result_kpiList = executeResult($sql);
 
 
 mysqli_stmt_close($stmt);
@@ -272,7 +220,7 @@ mysqli_close($link);
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <title>Quản lý công việc | Hệ thống quản trị KPI - PVcomBank</title>
+  <title>Tính điểm KPI tự động | Hệ thống quản trị KPI - PVcomBank</title>
   <!-- Tell the browser to be responsive to screen width -->
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <!-- Font Awesome -->
@@ -472,7 +420,7 @@ mysqli_close($link);
               else if ($function[$i] == "KPIcalcTools") {
                 echo "
             <li class='nav-item'>
-            <a href='" . $url[$i] ."' class='nav-link'>
+            <a href='" . $url[$i] ."' class='nav-link active'>
               <i class='nav-icon fas fa-chart-line'></i>
               <p>" . $menu_name[$i] . "</p>
             </a>
@@ -573,7 +521,7 @@ mysqli_close($link);
               else if ($function[$i] == "WorkManage") {
                   echo "
            <li class='nav-item'>
-            <a href='empWorkManage.php' class='nav-link active'>
+            <a href='empWorkManage.php' class='nav-link'>
               <i class='nav-icon fas fa-edit'></i>
               <p>
                 Quản lý công việc
@@ -676,12 +624,12 @@ mysqli_close($link);
       <div class="container-fluid">
         <div class="row mb-2">
           <div class="col-sm-6">
-            <h1 class="m-0 text-dark">Quản lý công việc</h1>
+            <h1 class="m-0 text-dark">Công cụ tính điểm KPI tự động</h1>
           </div><!-- /.col -->
           <div class="col-sm-6">
             <ol class="breadcrumb float-sm-right">
-              <li class="breadcrumb-item"><a href="#">Quản lý công việc</a></li>
-              <li class="breadcrumb-item active">Todo List</li>
+              <li class="breadcrumb-item"><a href="#">Công cụ</a></li>
+              <li class="breadcrumb-item active">KPI Calculate Tool</li>
             </ol>
           </div><!-- /.col -->
         </div><!-- /.row -->
@@ -698,167 +646,13 @@ mysqli_close($link);
           <!-- Left col -->
           <section class="col-lg-7 connectedSortable">
             <!-- Custom tabs (Charts with tabs)-->
-            
-
-
-            <!-- TO DO List -->
-            <div class="card">
-              <div class="card-header">
-                <h3 class="card-title">
-                  <i class="ion ion-clipboard mr-1"></i>
-                  Công việc cần làm
-                </h3>
-			
-                <div class="card-tools">
-                  <ul class="pagination pagination-sm">
-                    <li class="page-item"><a href="#" class="page-link">&laquo;</a></li>
-                    <?php 
-                    if ($NoOfTodo >= 10) {
-                        $pageTodo = $NoOfTodo/10 + 1;
-                    } else $pageTodo = 1;
-                    
-                    for ($i = 1 ; $i <= $pageTodo; $i ++) {
-                        echo "<li class='page-item'><a href='#' class='page-link'>";
-                        echo $i;
-                        echo "</a></li>";
-                    }
-                    
-                    ?>
-                    
-                    <li class="page-item"><a href="#" class="page-link">&raquo;</a></li>
-                  </ul>
+            <div class="row">
+              <div class="col-lg-12">
+              <div class="card card-primary">
+                <div class="card-header">
+                  <h3 class="card-title">Danh sách KPI theo chức danh</h3>
                 </div>
-              </div>
-              <!-- /.card-header -->
-              <form id="form_todoList" action="db/updateTodoStatus_Emp.php" method="post">
-              <div class="card-body">
-                <ul class="todo-list" data-widget="todo-list">
-                  <?php 
-                  for ($i=0; $i<$NoOfTodo; $i++) {
-                      echo "
-                <li>
-                    <!-- drag handle -->
-                    <span class='handle'>
-                      <i class='fas fa-ellipsis-v'></i>
-                      <i class='fas fa-ellipsis-v'></i>
-                    </span>
-                    <!-- checkbox -->
-                    <div  class='icheck-primary d-inline ml-2'>
-                      <input type='checkbox' value='" . $todoID[$i]. "' name='todoCheckBox[]'  id='todoCheck" . $i ."'";
-                    if ($todoStatus[$i] == "Finished") {
-                          echo "checked";
-                      }
-                      echo ">
-                      <label for='todoCheck" . $i . "'></label></div>
-                    <!-- todo text -->
-                    <span class='text'>" . $todoContent[$i] . "</span>
-                    
-                    <!-- Emphasis label -->
-                    <small class='badge badge-success'><i class='fas fa-clock'></i> " ."  " . date('H:i',strtotime($todoStartTime[$i])) . " | " . $todoStartDate[$i] . "</small>
-                    <small class='badge badge-danger'><i class='fas fa-user-tie'></i>" ." " . $fullname . "</small>";;
-                     
-                      $openDoorTime = date("h:i a",(mktime(8,00,00)));
-                      
-                      if (($todoStartTime[$i] <= $openDoorTime) && ($openDoorTime <= $todoEndTime[$i])) {
-                          echo "<small class='badge badge-warning'><i class='fas fa-bell'></i>  Trễ giờ làm</small>";
-                      }
-                      if ($todoLate[$i] == "request") {
-                          echo "<small class='badge badge-warning'><i class='fas fa-hand-point-right'></i>  Chờ duyệt đi trễ</small>";
-                      }
-                      if ($todoLate[$i] == "accepted") {
-                          echo "<small class='badge badge-success'><i class='fas fa-user-check'></i>  Đã duyệt đi trễ</small>";
-                      }
-                      if ($todoLate[$i] == "denied") {
-                          echo "<small class='badge badge-danger'><i class='fas fa-user-times'></i>  Không duyệt đi trễ</small>";
-                      }
-                    echo 
-                    "<!-- General tools such as edit or delete-->
-                    <div class='tools'>
-                      
-                      <i id='" . $todoID[$i] ."' class='edit_data fas fa-edit'></i>
-                      <i id='" .$todoID[$i] .  "' class='delete_data fas fa-trash-alt'></i>
-                    </div>
-                  </li>
-    
-                    ";
-                  }
-                  
-                  
-                  ?>
-           
-                </ul>
-              </div>
-              <!-- /.card-body -->
-              <div class="card-footer clearfix">
-                <button type="submit" class="btn btn-info float-right"><i class="fas fa-sync-alt"></i> Cập nhật trạng thái</button>
-              </div>
-              </form>
-            </div>
-            <!-- /.card -->
-            
-           
-            
-            
-          </section>
-          <!-- /.Left col -->
-          <!-- right col (We are only adding the ID to make the widgets sortable)-->
-          <section class="col-lg-5">
-		  
-          <div class = "row">
-                    <div class="col-lg-6">
-                        <!-- small box -->
-                        <div class="small-box bg-success">
-                          <div class="inner">
-                            <h3><?php 
-                            $NoOfFinishTodo = 0;
-                            foreach ($todoStatus as $value) {
-                                if ($value == "Finished") {
-                                $NoOfFinishTodo++;
-                            }
-                        }
-                        echo $NoOfFinishTodo;
-                        
-                        ?><sup style="font-size: 20px"> Công việc</sup> </h3>
-                        <p>Hoàn thành hôm nay</p>
-                      </div>
-                      <div class="icon">
-                        <i class="fas fa-calendar-check"></i>
-                      </div>
-                      
-                    </div>
-                  </div>
-                  <!-- ./col -->
-                  <div class="col-lg-6">
-                    <!-- small box -->
-                    <div class="small-box bg-danger">
-                      <div class="inner">
-                        <h3><?php 
-                        $NoOfProcessingTodo = 0;
-                        foreach ($todoStatus as $value) {
-                            if ($value != "Finished" && $value != "") {
-                                $NoOfProcessingTodo++;
-                            }
-                        }
-                        echo $NoOfProcessingTodo;
-                        
-                        ?><sup style="font-size: 20px"> Công việc</sup></h3>
-        
-                        <p>Chưa hoàn thành hôm nay</p>
-                      </div>
-                      <div class="icon">
-                        <i class="fas fa-calendar-times"></i>
-                      </div>
-                      
-                    </div>
-                  </div>
-                  <!-- ./col -->
-            	</div>
-          <div class="row">
-            <div class="card card-primary">
-              <div class="card-header">
-                <h3 class="card-title">Thêm mới công việc</h3>
-              </div>
-              <form id="addTodo" action="db/addTodoEmp.php" method="post">
+              <form id="kpiRegist" action="db/empKpiRegist.php" method="post">
               <div class="card-body">
                 
                  <!-- Start Row -->
@@ -900,24 +694,24 @@ mysqli_close($link);
                 	</div>
                 </div>               
                 <!-- end of row -->
-				<div class="row">
-					<div class="col-lg-12">
-                      <!-- textarea -->
-                      <div class="form-group">
-                        <label>Nội dung công việc</label>
-                        <textarea class="form-control" name="todo_content" id="todo_content" rows="2" placeholder="Nhập nội dung ..." required></textarea>
-                      </div>
-                    </div>
-				</div>
+            <div class="row">
+              <div class="col-lg-12">
+                          <!-- textarea -->
+                          <div class="form-group">
+                            <label>Nội dung công việc</label>
+                            <textarea class="form-control" name="todo_content" id="todo_content" rows="2" placeholder="Nhập nội dung ..." required></textarea>
+                          </div>
+                        </div>
+            </div>
 				
-				<div class="row"> 
-				<div class="col-lg-12"> 
-					<div class="custom-control custom-checkbox">
-                      <input class="custom-control-input" type="checkbox" id="isLate" name="isLate" value="request">
-                      <label for="isLate" class="custom-control-label">Đăng ký đi trễ</label>
-             		</div>
-             	</div>
-				</div>
+            <div class="row"> 
+              <div class="col-lg-12"> 
+              <div class="custom-control custom-checkbox">
+                          <input class="custom-control-input" type="checkbox" id="isLate" name="isLate" value="request">
+                          <label for="isLate" class="custom-control-label">Đăng ký đi trễ</label>
+                    </div>
+                  </div>
+            </div>
 				
               </div>
               
@@ -935,8 +729,19 @@ mysqli_close($link);
               </form>
               
             </div>
-			</div>
+			      </div>
             <!-- /.card -->
+              </div>
+              
+
+            
+          </section>
+          <!-- /.Left col -->
+          <!-- right col (We are only adding the ID to make the widgets sortable)-->
+          <section class="col-lg-5">
+		  
+           
+            
           </section>
           <!-- right col -->
         </div>
